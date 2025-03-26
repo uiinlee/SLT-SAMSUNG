@@ -59,7 +59,9 @@ class TrainManager:
         self.logger = make_logger(model_dir=self.model_dir)
         self.logging_freq = train_config.get("logging_freq", 100)
         self.valid_report_file = "{}/validations.txt".format(self.model_dir)
-        self.tb_writer = SummaryWriter(log_dir=self.model_dir / "tensorboard")
+        # self.tb_writer = SummaryWriter(log_dir=self.model_dir / "tensorboard")
+        self.tb_writer = SummaryWriter(log_dir=os.path.join(self.model_dir, "tensorboard"))
+
 
         # input
         self.feature_size = (
@@ -582,6 +584,7 @@ class TrainManager:
 
                         if prev_lr != now_lr:
                             if self.last_best_lr != prev_lr:
+                                # self.logger.info("Learning rate changed from %f to %f, but training will continue.", prev_lr, now_lr)
                                 self.stop = True
 
                     # append to validation report
@@ -998,7 +1001,8 @@ def train(cfg_file: str) -> None:
     trainer = TrainManager(model=model, config=cfg)
 
     # store copy of original training config in model dir
-    shutil.copy2(cfg_file, trainer.model_dir / "config.yaml")
+    # shutil.copy2(cfg_file, trainer.model_dir / "config.yaml")
+    shutil.copy2(cfg_file, os.path.join(trainer.model_dir, "config.yaml"))
 
     # log all entries of config
     log_cfg(cfg, trainer.logger)

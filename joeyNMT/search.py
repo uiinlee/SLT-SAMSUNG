@@ -363,8 +363,8 @@ def beam_search(
 
         # append latest prediction
         alive_seq = torch.cat(
-            [alive_seq.index_select(0, select_indices), topk_ids.view(-1, 1)], -1
-        )  # batch_size*k x hyp_len
+            [alive_seq.index_select(0, select_indices.long()), topk_ids.view(-1, 1)], -1
+        )  # batc  # batch_size*k x hyp_len
 
         is_finished = topk_ids.eq(eos_index)
         if step + 1 == max_output_length:
@@ -414,7 +414,8 @@ def beam_search(
             )
 
         # reorder indices, outputs and masks
-        select_indices = batch_index.view(-1)
+        # select_indices = batch_index.view(-1)
+        select_indices = batch_index.view(-1).long()  # 정수형으로 변환
         encoder_output = encoder_output.index_select(0, select_indices)
         src_mask = src_mask.index_select(0, select_indices)
 
